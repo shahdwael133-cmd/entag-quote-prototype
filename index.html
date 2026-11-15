@@ -162,6 +162,33 @@ body.clean .pin{display:none}
 .sent{color:var(--green);font-weight:600;font-size:14px;margin-top:6px}
 .demo{font-size:12.5px;color:var(--muted);margin-top:12px}
 
+/* v3: waiting parts, design-file help, next steps */
+.note.wait{background:var(--amber-bg);color:var(--amber)}
+.pprice .wait{display:block;font-size:16px;font-weight:700;color:var(--amber);max-width:110px;margin-left:auto;line-height:1.25}
+.line span:first-child{white-space:nowrap}
+.total span:last-child{white-space:nowrap}
+.total small{display:block;font-size:13px;font-weight:500;color:var(--body)}
+@media (max-width:820px){.pprice .wait{margin-left:0;max-width:none}}
+.pendbox{background:var(--amber-bg);color:var(--amber);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:10px}
+.pendbox b{color:var(--amber);font-weight:700}
+.pendbox ul{margin:4px 0 0 18px}
+.line small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
+.next{margin-top:14px;background:var(--pale-2);border:2px solid var(--green);border-radius:12px;padding:14px}
+.next .ok{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:700;font-size:17px}
+.next .ok svg{width:22px;height:22px;flex:none}
+.next h4{margin:10px 0 6px;color:var(--ink);font-size:14.5px;font-weight:600}
+.next ol{list-style:none;counter-reset:s}
+.next li{counter-increment:s;display:grid;grid-template-columns:24px 1fr;gap:8px;font-size:14px;padding:5px 0;color:var(--ink)}
+.next li::before{content:counter(s);width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:700}
+.next li small{display:block;color:var(--body);font-size:13px}
+.next .later{margin-top:8px;font-size:13px;color:var(--body);border-top:1px solid var(--mint);padding-top:8px}
+.tip{display:block;margin-top:4px;font-size:13px;color:var(--ink)}
+.howto{background:var(--off);border-radius:10px;padding:12px;margin-top:12px;font-size:14px}
+.howto b{color:var(--ink)}
+.howto ol{margin:6px 0 0 18px}
+.modal .btn.alt{background:#fff;color:var(--green);border:1px solid var(--green);margin-top:8px}
+.modal .sub{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+
 /* modal + drawer */
 .scrim{position:fixed;inset:0;background:rgba(16,24,40,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
 .scrim.show{display:flex}
@@ -210,7 +237,7 @@ body.clean .pin{display:none}
   <strong>Prototype, work in progress</strong><span>Suggested changes to the Entag quote page. All prices are demo numbers.</span>
   <span class="sp"></span>
   <button class="switch" id="pinToggle" aria-pressed="true"><i></i>Show changes</button>
-  <button class="linkbtn" id="openList">What changed (9)</button>
+  <button class="linkbtn" id="openList">What changed (13)</button>
 </div>
 
 <div class="app">
@@ -242,6 +269,10 @@ body.clean .pin{display:none}
     <li><span class="pin">7</span><div><b>Currency switch.</b> Picked from the visitor's time zone, using live exchange rates.</div></li>
     <li><span class="pin">8</span><div><b>"Email me this quote".</b> The PDF button and extra parts ask for an email only, so every interested visitor lands in our list.</div></li>
     <li><span class="pin">9</span><div><b>Full sign-up only at "Request quote".</b> Value first, small ask next, big ask last (lazy registration). The email is already filled in.</div></li>
+    <li><span class="pin">10</span><div><b>SolidWorks and other design files get help, not a dead end.</b> entag.co lists these files, but the platform only takes 7 types. Now the customer sees how to save as STEP in a few clicks, or can send the file as it is for our engineers to price.</div></li>
+    <li><span class="pin">11</span><div><b>Honest total.</b> A part waiting for our engineers is named, and the total says "Total so far (1 of 2 parts)". Before, the screen showed a total that quietly left the part out. Only the PDF said so.</div></li>
+    <li><span class="pin">12</span><div><b>No "go to your inbox" step.</b> The request goes through right away. The customer confirms their email later, so they never leave the page in the middle.</div></li>
+    <li><span class="pin">13</span><div><b>Clear next steps after "Request quote".</b> Who checks it, by when, and where the answer arrives (email and WhatsApp). Channels and timings here are examples for Omar to confirm.</div></li>
   </ol>
 </div>
 <div class="toast" id="toast"></div>
@@ -269,6 +300,12 @@ const LEAD = {cnc:15,sheet:15,tube:15,print:3};
 const QBREAKS = [1,10,50,100,250];
 const INSTALL_MIN = 100000; // Entag policy: installments from 100,000 EGP
 const EXPRESS = 1.35;      // example: +35% price
+/* v3: design files entag.co lists but the platform does not take */
+const NATIVE = {sldprt:'SolidWorks',sldasm:'SolidWorks',ipt:'Inventor',iam:'Inventor',catpart:'CATIA','3dxml':'CATIA',prt:'Creo or NX',ptc:'Creo',x_t:'Parasolid',x_b:'Parasolid',sat:'ACIS','3mf':'3MF'};
+const HOWTO = {
+  SolidWorks:['Open the part in SolidWorks.','Click File, then Save As.','In "Save as type", pick STEP (*.step).','Click Save, then upload the new .step file here.']
+};
+const HOWTO_ANY = ['Open the part in your design software.','Look for Save As or Export.','Pick STEP (.step or .stp).','Save it, then upload the new file here.'];
 
 const SVG = {
   flange:'<svg viewBox="0 0 120 90"><ellipse cx="60" cy="54" rx="48" ry="20" fill="#B9C2CC"/><rect x="12" y="40" width="96" height="14" fill="#B9C2CC"/><ellipse cx="60" cy="40" rx="48" ry="20" fill="#E4E7EC" stroke="#98A2B3"/><ellipse cx="60" cy="40" rx="16" ry="7" fill="#98A2B3"/><circle cx="30" cy="40" r="3" fill="#98A2B3"/><circle cx="90" cy="40" r="3" fill="#98A2B3"/><circle cx="60" cy="27" r="3" fill="#98A2B3"/><circle cx="60" cy="53" r="3" fill="#98A2B3"/></svg>',
@@ -315,7 +352,7 @@ fetch('https://open.er-api.com/v6/latest/EGP').then(r=>r.json()).then(d=>{
 }).catch(()=>{});
 
 /* ---------- state ---------- */
-const S = { view:'start', proc:'cnc', parts:[], quoteNo:'', speed:'standard', cur:pickCurrency(), email:'', sent:false, openEditor:null, ownFiles:0 };
+const S = { view:'start', proc:'cnc', parts:[], quoteNo:'', speed:'standard', cur:pickCurrency(), email:'', sent:false, openEditor:null, ownFiles:0, requested:false, name:'', phone:'', nat:null };
 const $ = s=>document.querySelector(s);
 const fmt = (egp,cur=S.cur)=> cur+' '+(egp*rates[cur]).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const egp = n=> 'EGP '+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -330,9 +367,12 @@ function unit(p,qty=p.qty){
   return u;
 }
 function partTotal(p){ return unit(p)*p.qty; }
-function subtotal(){ return S.parts.reduce((a,p)=>a+partTotal(p),0); }
+const priced = ()=> S.parts.filter(p=>!p.pending);
+const waiting = ()=> S.parts.filter(p=>p.pending);
+function subtotal(){ return priced().reduce((a,p)=>a+partTotal(p),0); }
+function baseLead(){ const list = priced().length ? priced() : S.parts; return Math.max(...list.map(p=>LEAD[p.proc])); }
 function leadDays(){
-  const base = Math.max(...S.parts.map(p=>LEAD[p.proc]));
+  const base = baseLead();
   return S.speed==='express' ? Math.max(2,Math.ceil(base*0.55)) : base;
 }
 function quoteNo(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
@@ -343,7 +383,8 @@ function startView(){
     const sub={print:'FDM',cnc:'Milling, turning, EDM, grinding and post processing',sheet:'Laser cutting, bending, rolling, stamping and assembly',tube:'Laser cutting, welding and assembly'}[k];
     return `<button class="proc ${S.proc===k?'on':''}" data-proc="${k}"><b>${n}</b><small>${sub}</small></button>`;
   }).join('');
-  const samples = Object.entries(SAMPLES).map(([k,s])=>`<button class="sbtn" data-sample="${k}">${s.label}${k==='kit'?'<span class="pin">2</span>':''}</button>`).join('');
+  const samples = Object.entries(SAMPLES).map(([k,s])=>`<button class="sbtn" data-sample="${k}">${s.label}${k==='kit'?'<span class="pin">2</span>':''}</button>`).join('')
+    + `<button class="sbtn" data-swsample="1">SolidWorks file (.SLDPRT)<span class="pin">10</span></button>`;
   return `
   <div class="hero">
     <div>
@@ -362,6 +403,7 @@ function startView(){
       <svg class="big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
       <b>Click to upload or drag and drop files</b>
       <small>File types: STEP, STP, DXF, STL, PDF, JPG, PNG. Up to 50 MB each.</small>
+      <small class="tip">Have a SolidWorks, Inventor or CATIA file? Upload it anyway. We show you how to get an instant price.<span class="pin">10</span></small>
     </div>
   </div>
   <p class="secure">🔒 All your files are secure with us. They are never shared.</p>
@@ -378,14 +420,18 @@ function partCard(p,i){
   rows.push(['Finish',fins[p.fin][0]]);
   let notes='';
   if(p.thick!==null && !p.thickTouched) notes+=`<div class="note ok">We assumed 2 mm sheet so you get a price now. Change it in "Edit specifications".<span class="pin">2</span></div>`;
-  if(est) notes+=`<div class="note est">Estimated price for ${fins[p.fin][0].toLowerCase()}. Our engineers confirm it within 24 hours.<span class="pin">3</span></div>`;
+  if(p.pending) notes=`<div class="note wait">Our engineers open your ${p.kind} file and price this part within 24 hours. It is <b>not in the total yet</b>.<span class="pin">11</span></div>`;
+  else if(est) notes+=`<div class="note est">Estimated price for ${fins[p.fin][0].toLowerCase()}. Our engineers confirm it within 24 hours.<span class="pin">3</span></div>`;
   const editor = open ? editorHTML(p) : '';
+  const price = p.pending
+    ? `<span class="wait" data-pt="${p.id}">Price within <br>24 hours</span><small>${p.qty} piece(s)</small>`
+    : `<b data-pt="${p.id}">${fmt(u*p.qty)}</b><small>${fmt(u)}/piece</small><small>${p.qty} piece(s)</small>`;
   return `<div class="card part" id="p-${p.id}">
     <div class="ptop">
       <div><div class="thumb">${SVG[p.svg]}<span class="qx">x${p.qty}</span></div><div class="dims">${p.dims}</div><div class="fname">${(i+1)*10}. ${p.file}</div></div>
       <div><dl class="specs">${rows.map(r=>`<dt>${r[0]}:</dt><dd>${r[1]}</dd>`).join('')}</dl>${notes}
         <button class="editbtn" data-edit="${p.id}" aria-expanded="${open}">${open?'Close':'✎ Edit specifications'}</button></div>
-      <div class="pprice"><b data-pt="${p.id}">${fmt(u*p.qty)}</b><small>${fmt(u)}/piece</small><small>${p.qty} piece(s)</small>
+      <div class="pprice">${price}
         <button class="del" data-del="${p.id}" aria-label="Remove part">🗑</button></div>
     </div>${editor}</div>`;
 }
@@ -402,8 +448,10 @@ function editorHTML(p){
     ${p.proc==='cnc'?`<div class="field"><label>Tightest tolerance</label>${sel('tol',TOL,p.tol)}</div>`:''}
     ${p.thick!==null?`<div class="field"><label>Sheet thickness</label>${sel('thick',THICK,p.thick)}</div>`:''}
     <div class="field"><label>Finish<span class="pin">3</span></label>${sel('fin',FIN[p.proc],p.fin)}</div>
-    <div class="breaks"><table><thead><tr><th>Quantity</th><th>Per piece</th><th>Total</th><th>You save</th></tr></thead><tbody>${breaks}</tbody></table></div>
-    <div class="save">Changes save and re-price straight away. No "Apply" button.</div>
+    ${p.pending
+      ? `<div class="save">Your choices are saved. Prices for each quantity show here once our engineers price this part.</div>`
+      : `<div class="breaks"><table><thead><tr><th>Quantity</th><th>Per piece</th><th>Total</th><th>You save</th></tr></thead><tbody>${breaks}</tbody></table></div>
+    <div class="save">Changes save and re-price straight away. No "Apply" button.</div>`}
   </div>`;
 }
 
@@ -413,12 +461,33 @@ function quoteView(){
   const inst = sub>=INSTALL_MIN
     ? `<div class="inst open"><b>Installment payments available on this order.</b><br>Pay in parts instead of all at once. Our team confirms the plan with you.<span class="pin">6</span></div>`
     : `<div class="inst locked"><b>Add ${fmt(left)} more to unlock installment payments.</b><span class="pin">6</span><div class="prog"><i style="width:${pct}%"></i></div><small>Installments start at ${fmt(INSTALL_MIN)}. Add quantity or another part.</small></div>`;
-  const base=LEAD[S.parts.reduce((a,p)=>LEAD[p.proc]>LEAD[a.proc]?p:a,S.parts[0]).proc];
+  const base=baseLead();
+  const W=waiting(), P=priced(), none=!P.length, n=S.parts.length;
   const stdSub = S.speed==='express'? sub/EXPRESS : sub, expSub = stdSub*EXPRESS;
   const speed = `<div class="speed">
-    <label class="${S.speed==='standard'?'on':''}"><input type="radio" name="speed" value="standard" ${S.speed==='standard'?'checked':''}><span><b>Standard</b><small>${base} working days</small></span><span class="r">${fmt(stdSub)}</span></label>
-    <label class="${S.speed==='express'?'on':''}"><input type="radio" name="speed" value="express" ${S.speed==='express'?'checked':''}><span><b>Express</b><small>${Math.max(2,Math.ceil(base*.55))} working days, made first</small></span><span class="r">+${fmt(expSub-stdSub)}</span></label>
+    <label class="${S.speed==='standard'?'on':''}"><input type="radio" name="speed" value="standard" ${S.speed==='standard'?'checked':''}><span><b>Standard</b><small>${base} working days</small></span><span class="r">${none?'Price follows':fmt(stdSub)}</span></label>
+    <label class="${S.speed==='express'?'on':''}"><input type="radio" name="speed" value="express" ${S.speed==='express'?'checked':''}><span><b>Express</b><small>${Math.max(2,Math.ceil(base*.55))} working days, made first</small></span><span class="r">${none?'+35%':'+'+fmt(expSub-stdSub)}</span></label>
   </div>`;
+  /* v3 (11): name the parts that are not priced yet, and label the total honestly */
+  const them = W.length>1?'them':'it';
+  const pend = W.length ? `<div class="pendbox" id="pendbox"><b>${W.length} of ${n} part${n>1?'s':''} not priced yet</b><span class="pin">11</span>
+      <ul>${W.map(p=>`<li>${esc(p.file)}</li>`).join('')}</ul>Our engineers price ${them} within 24 hours. ${none?'You see the full price then.':`The total below does not include ${them} yet.`}</div>` : '';
+  const leadTxt = none ? 'Comes with the price'
+    : W.length ? `<b>${leadDays()} working days</b><small>For the priced parts only. The final time comes with the full price.</small>`
+    : `<b>${leadDays()} working days</b>`;
+  const totLabel = (W.length && !none) ? `Total so far<small>(${P.length} of ${n} parts)</small>` : 'Estimated total';
+  /* v3 (12, 13): request goes through at once, then a clear "what happens next" */
+  const check='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
+  const cta = S.requested
+    ? `<div class="next" id="nextBox"><div class="ok">${check}Quote request sent<span class="pin">13</span></div>
+        <h4>What happens next</h4>
+        <ol>
+          <li><div><b>Today:</b> an Entag engineer checks your files and your choices.<small>Your quote number is #${S.quoteNo}.</small></div></li>
+          <li><div><b>Within 24 hours:</b> you get the final price${W.length?`, including the part${W.length>1?'s':''} we price by hand`:''}.<small>By email to ${esc(S.email)}${S.phone?` and on WhatsApp at ${esc(S.phone)}`:''}.</small></div></li>
+          <li><div><b>Then:</b> you approve the price and choose how to pay${sub>=INSTALL_MIN?', including installments':''}. We start making your parts.</div></li>
+        </ol>
+        <div class="later">We also sent you a link to confirm your email. No rush: your request is already with our team.<span class="pin">12</span></div></div>`
+    : `<button class="btn green cta" id="request">Request quote<span class="pin">9</span></button>`;
   const email = S.sent
     ? `<div class="email"><b>Quote sent to ${S.email}</b><small>Check your inbox for the PDF. We saved this quote for you.</small><span class="pin">8</span></div>`
     : `<div class="email"><b>Email me this quote<span class="pin">8</span></b><small>Get the PDF in your inbox to share with your manager. No account needed.</small>
@@ -432,7 +501,7 @@ function quoteView(){
   <div class="qgrid">
     <div>
       <div class="card qid"><b>Quote #${S.quoteNo}</b><a href="#" onclick="return false">+ Add your PO number</a><span style="flex:1"></span><button class="btn" id="pdfBtn">⬇ PDF<span class="pin">8</span></button></div>
-      <div class="adddrop" id="adddrop" tabindex="0" role="button"><b>Click to upload or drag and drop more files</b><small>File types: STEP, STP, DXF, STL, PDF, JPG, PNG. Up to 50 MB each.</small></div>
+      <div class="adddrop" id="adddrop" tabindex="0" role="button"><b>Click to upload or drag and drop more files</b><small>File types: STEP, STP, DXF, STL, PDF, JPG, PNG. Up to 50 MB each. SolidWorks, Inventor or CATIA files are welcome too.<span class="pin">10</span></small></div>
       ${S.parts.map(partCard).join('')}
     </div>
     <aside class="card sum">
@@ -441,16 +510,17 @@ function quoteView(){
       <div class="hr"></div>
       <h3>Delivery speed<span class="pin">5</span></h3>${speed}
       <div class="hr"></div>
-      <div class="line"><span>Lead time</span><span><b>${leadDays()} working days</b></span></div>
-      <div class="line"><span>Manufacturing</span><span>${fmt(sub)}</span></div>
+      ${pend}
+      <div class="line"><span>Lead time</span><span id="lead">${leadTxt}</span></div>
+      <div class="line"><span>Manufacturing</span><span>${none?'Priced within 24 hours':fmt(sub)}</span></div>
       <div class="line"><span>Shipping</span><span>calculated with the address</span></div>
-      <div class="line"><span>VAT 14%</span><span>${fmt(vat)}</span></div>
-      <div class="total"><span>Estimated total</span><span id="grand">~${fmt(tot)}</span></div>
-      ${S.cur!=='EGP'?`<div class="conv">About ${egp(tot)}. Rate from ExchangeRate-API, ${ratesDate}. For comparison only; our team confirms the final amount.</div>`:''}
-      ${inst}
-      <button class="btn green cta" id="request">Request quote<span class="pin">9</span></button>
+      ${none?'':`<div class="line"><span>VAT 14%</span><span>${fmt(vat)}</span></div>`}
+      <div class="total"><span id="totlabel">${totLabel}</span><span id="grand">${none?'Within 24 hours':'~'+fmt(tot)}</span></div>
+      ${S.cur!=='EGP'&&!none?`<div class="conv">About ${egp(tot)}. Rate from ExchangeRate-API, ${ratesDate}. For comparison only; our team confirms the final amount.</div>`:''}
+      ${none?'':inst}
+      ${cta}
       ${email}
-      <p class="demo">Prototype: prices are demo numbers built from the live platform's flange price. Express (+35%) and the finish prices are examples. Installments from 100,000 EGP follow Entag's current policy.</p>
+      <p class="demo">Prototype: prices are demo numbers built from the live platform's flange price. Express (+35%) and the finish prices are examples. Installments from 100,000 EGP follow Entag's current policy. The "what happens next" channels and timings are examples to confirm.</p>
     </aside>
   </div>`;
 }
@@ -459,6 +529,7 @@ function quoteView(){
 function render(){
   $('#main').innerHTML = S.view==='start'? startView() : quoteView();
   document.querySelectorAll('.side .nav[data-go]').forEach(n=>n.classList.toggle('on', n.dataset.go===S.view));
+  if(S.name){ const g=$('.guest'); g.innerHTML=`<span>${esc(S.name.charAt(0).toUpperCase())}</span>${esc(S.name.split(' ')[0])}`; }
 }
 function go(view){ S.view=view; render(); window.scrollTo(0,0); }
 
@@ -466,12 +537,39 @@ function loadParts(list){
   const drop=$('#drop');
   if(drop){ drop.classList.add('busy'); drop.innerHTML='<b>Reading your files…</b><small>On the real platform this takes about 20 seconds. Sped up for the demo.</small><div class="bar"><i></i></div>';
     requestAnimationFrame(()=>{const b=drop.querySelector('.bar i'); b.style.transitionDuration='1.1s'; b.style.width='100%';}); }
-  setTimeout(()=>{ S.parts=list.map(newPart); S.quoteNo=quoteNo(); S.speed='standard'; S.sent=false; S.openEditor=null; S.ownFiles=0; go('quote'); },1150);
+  setTimeout(()=>{ S.parts=list.map(newPart); S.quoteNo=quoteNo(); S.speed='standard'; S.sent=false; S.requested=false; S.openEditor=null; S.ownFiles=0; go('quote'); },1150);
 }
 function fromFile(f){
   const ext=(f.name.split('.').pop()||'').toLowerCase();
   const proc= ext==='dxf'?'sheet': ext==='stl'?'print':'cnc';
   return {file:f.name,proc,dims:'Demo: your file is not read in the prototype',svg:'generic',S:proc==='print'?60:900,v:proc==='print'?150:420};
+}
+const esc = s=> String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const extOf = name=> (name.split('.').pop()||'').toLowerCase();
+/* v3 (10): design files go through a help box instead of failing */
+function handleFiles(files, where){
+  const ok=[], nat=[];
+  files.forEach(f=> NATIVE[extOf(f.name)] ? nat.push(f.name) : ok.push(fromFile(f)));
+  if(!nat.length){ addParts(ok, where); return; }
+  S.nat={ok,nat,where}; nativeModal();
+}
+function addParts(list, where){
+  if(!list.length) return;
+  if(where==='start'){ loadParts(list); return; }
+  list.forEach(t=>S.parts.push(newPart(t))); S.requested=false; render(); toast(list.length>1?'Parts added':'Part added');
+}
+function pendingFrom(name){
+  return {file:name,proc:'cnc',dims:'Design file: our engineers open it',svg:'generic',S:900,v:420,pending:true,kind:NATIVE[extOf(name)]};
+}
+function nativeModal(){
+  const {nat}=S.nat, kind=NATIVE[extOf(nat[0])], steps=HOWTO[kind]||HOWTO_ANY;
+  openModal(`<button class="x" aria-label="Close">×</button><h2>${nat.length>1?'These are':'This is a'} ${kind} file${nat.length>1?'s':''}<span class="pin">10</span></h2>
+    <p><b>${nat.map(esc).join(', ')}</b></p>
+    <p>For an instant price we need a STEP file. You have 2 choices:</p>
+    <div class="howto"><b>Choice 1: get your price now (about 1 minute)</b><ol>${steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>
+    <button class="btn green" data-native="step">I'll upload a STEP file</button>
+    <button class="btn alt" data-native="send">Choice 2: send it as it is</button>
+    <p class="sub">With choice 2, our engineers open your file and price it within 24 hours.</p>`);
 }
 
 document.addEventListener('click',e=>{
@@ -479,6 +577,14 @@ document.addEventListener('click',e=>{
   if(t.dataset.go){ if(t.dataset.go==='quote' && !S.parts.length){ toast('Pick a sample part first'); return;} go(t.dataset.go); return; }
   if(t.dataset.proc){ S.proc=t.dataset.proc; render(); return; }
   if(t.dataset.sample){ loadParts(SAMPLES[t.dataset.sample].parts); return; }
+  if(t.dataset.swsample){ handleFiles([{name:'mounting_block.SLDPRT'}],'start'); return; }
+  if(t.dataset.native && S.nat){ const {ok,nat,where}=S.nat; S.nat=null; closeModal();
+    if(t.dataset.native==='send'){ addParts(ok.concat(nat.map(pendingFrom)), where); return; }
+    if(ok.length) addParts(ok, where);
+    toast('Save it as STEP, then pick the new file.');
+    if(where==='start'){ $('#file').click(); } else { $('#file2').click(); }
+    return; }
+  if(t.dataset.del){ S.requested=false; }
   if(t.id==='drop'){ $('#file').click(); return; }
   if(t.id==='adddrop'){ if(!S.email){ emailModal('add'); return; } $('#file2').click(); return; }
   if(t.dataset.edit){ S.openEditor = S.openEditor===t.dataset.edit?null:t.dataset.edit; render(); return; }
@@ -497,8 +603,8 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target;
-  if(t.id==='file' && t.files.length){ loadParts([...t.files].map(fromFile)); t.value=''; return; }
-  if(t.id==='file2' && t.files.length){ [...t.files].forEach(f=>S.parts.push(newPart(fromFile(f)))); t.value=''; render(); toast('Part added'); return; }
+  if(t.id==='file' && t.files.length){ const fs=[...t.files]; t.value=''; handleFiles(fs, S.view==='start'?'start':'add'); return; }
+  if(t.id==='file2' && t.files.length){ const fs=[...t.files]; t.value=''; handleFiles(fs,'add'); return; }
   if(t.id==='cur'){ S.cur=t.value; render(); return; }
   if(t.name==='speed'){ S.speed=t.value; render(); return; }
   if(t.dataset.k && t.dataset.id){
@@ -514,7 +620,8 @@ document.addEventListener('submit',e=>{
   if(f.id==='modalEmail'){ S.email=f.querySelector('input').value.trim(); const why=f.dataset.why; closeModal();
     if(why==='pdf'){ S.sent=true; render(); toast('PDF downloaded and emailed to you (demo)'); }
     if(why==='add'){ render(); toast('Quote saved to your email. Now add your files.'); setTimeout(()=>$('#file2')&&$('#file2').click(),150); } }
-  if(f.id==='signup'){ closeModal(); toast('Account created. Your quote request is with our engineers (demo).'); }
+  if(f.id==='signup'){ S.name=$('#su-n').value.trim(); S.email=$('#su-e').value.trim(); S.phone=$('#su-p').value.trim();
+    S.requested=true; closeModal(); render(); const nb=$('#nextBox'); if(nb) nb.scrollIntoView({behavior:'smooth',block:'center'}); }
 });
 function flash(id){ const el=document.querySelector(`[data-pt="${id}"]`); if(el){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600); }
@@ -531,6 +638,7 @@ function emailModal(why){
 function signupModal(){
   openModal(`<button class="x" aria-label="Close">×</button><h2>Create your free account to send this request<span class="pin">9</span></h2>
     <p>Your quote is saved. Our engineers check it and confirm the final price within 24 hours.</p>
+    <p class="note ok">No need to leave this page. Your request goes through now, and you can confirm your email later.<span class="pin">12</span></p>
     <form id="signup">
       <label for="su-n">Full name</label><input id="su-n" required>
       <label for="su-c">Company name</label><input id="su-c">
