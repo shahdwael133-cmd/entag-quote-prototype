@@ -267,7 +267,7 @@ const THICK = [['1 mm',.7],['1.5 mm',.85],['2 mm',1],['3 mm',1.3],['4 mm',1.6]];
 const PROC = {cnc:'CNC Machining',sheet:'Sheet Metal Fabrication',tube:'Tube Fabrication',print:'3D Printing'};
 const LEAD = {cnc:15,sheet:15,tube:15,print:3};
 const QBREAKS = [1,10,50,100,250];
-const INSTALL_MIN = 100000; // example threshold from Shahd, Omar to confirm
+const INSTALL_MIN = 100000; // Entag policy: installments from 100,000 EGP
 const EXPRESS = 1.35;      // example: +35% price
 
 const SVG = {
@@ -450,7 +450,7 @@ function quoteView(){
       ${inst}
       <button class="btn green cta" id="request">Request quote<span class="pin">9</span></button>
       ${email}
-      <p class="demo">Prototype: prices are demo numbers built from the live platform's flange price. Express (+35%) and the 100,000 EGP installment line are examples for Omar to confirm.</p>
+      <p class="demo">Prototype: prices are demo numbers built from the live platform's flange price. Express (+35%) and the finish prices are examples. Installments from 100,000 EGP follow Entag's current policy.</p>
     </aside>
   </div>`;
 }
